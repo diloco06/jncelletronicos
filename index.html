@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JN CELL | Catálogo Oficial</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #f39c12; 
+            --bg-dark: #000000;
+            --card-bg: #121212;
+            --text-white: #ffffff;
+            --text-gray: #a0a0a0;
+            --price-color: #2ecc71;
+            --select-bg: #1a1a1a;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: hidden; }
+        
+        header { text-align: center; padding: 40px 20px; background: linear-gradient(to bottom, #1a1a1a, #000); border-bottom: 1px solid #333; }
+        .logo-container i { font-size: 2.5rem; color: var(--text-white); margin-bottom: 10px; }
+        header h1 { font-size: 24px; letter-spacing: 3px; font-weight: 800; }
+
+        .search-container { max-width: 1200px; margin: 20px auto 0; padding: 0 20px; }
+        #campo-busca { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #333; background: var(--select-bg); color: white; outline: none; }
+        
+        .nav-categorias { display: flex; justify-content: center; gap: 10px; padding: 20px; background: #000; position: sticky; top: 0; z-index: 100; overflow-x: auto; border-bottom: 1px solid #222; }
+        .nav-categorias::-webkit-scrollbar { display: none; }
+        .nav-btn { background: #1a1a1a; color: var(--text-gray); border: 1px solid #333; padding: 10px 20px; border-radius: 25px; cursor: pointer; transition: 0.3s; font-size: 11px; text-transform: uppercase; font-weight: 600; white-space: nowrap; }
+        .nav-btn.active, .nav-btn:hover { background: var(--primary-color); color: #000; border-color: var(--primary-color); }
+
+        #sub-filtros-wrapper { text-align: center; padding: 15px; background: #080808; display: none; border-bottom: 1px solid #222; }
+        .select-filtro { background: var(--select-bg); color: white; border: 1px solid var(--primary-color); padding: 10px; border-radius: 8px; width: 100%; max-width: 300px; outline: none; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        .grid-produtos { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+            gap: 25px; 
+            justify-content: center; 
+        }
+        
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 15px; 
+            padding: 15px; 
+            text-align: center; 
+            border: 1px solid #222; 
+            transition: 0.3s; 
+            max-width: 320px; 
+            margin: 0 auto; 
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .card:hover { transform: translateY(-10px); border-color: var(--primary-color); }
+        
+        .img-container { width: 100%; height: 250px; overflow: hidden; border-radius: 10px; margin-bottom: 15px; background: #000; }
+        .card img { width: 100%; height: 100%; object-fit: contain; }
+        
+        .preco { font-size: 20px; color: var(--price-color); font-weight: 800; margin-bottom: 15px; }
+        .btn-pedido { background-color: #25d366; color: white; padding: 12px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: bold; text-decoration: none; }
+        
+        .whatsapp-fixo { position: fixed; bottom: 20px; right: 20px; background: #25d366; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: white; z-index: 200; }
+        
+        @media (max-width: 600px) { 
+            .grid-produtos { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; } 
+            .img-container { height: 160px; } 
+            .card h3 { font-size: 13px; } 
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container"><i class="fab fa-apple"></i></div>
+        <h1>JN CELL</h1>
+        <p>Teresina e Timon</p>
+    </header>
+
+    <div class="search-container">
+        <input type="text" id="campo-busca" placeholder="🔍 Buscar produto..." onkeyup="carregarVitrine()">
+    </div>
+
+    <nav class="nav-categorias">
+        <button class="nav-btn active" onclick="filtrar('todas', event)">Todas</button>
+        <button class="nav-btn" onclick="filtrar('capas', event)">Capas</button>
+        <button class="nav-btn" onclick="filtrar('iphones', event)">iPhones</button>
+        <button class="nav-btn" onclick="filtrar('carregador', event)">Energia</button>
+        <button class="nav-btn" onclick="filtrar('pelicula', event)">Películas</button>
+        <button class="nav-btn" onclick="filtrar('fones', event)">Áudio</button>
+        <button class="nav-btn" onclick="filtrar('relogio', event)">Relógios</button>
+    </nav>
+
+    <div id="sub-filtros-wrapper">
+        <select id="select-subtipo" class="select-filtro" onchange="carregarVitrine()">
+            </select>
+    </div>
+
+    <div class="container">
+        <div class="grid-produtos" id="vitrine"></div>
+    </div>
+
+    <a href="https://wa.me/5599984660688" class="whatsapp-fixo" target="_blank"><i class="fab fa-whatsapp"></i></a>
+
+    <script>
+        let categoriaAtiva = 'todas';
+
+        const produtos = [
+            // CAPAS
+            { nome: "Case Personalizada", cat: "capas", subtipo: "especial", preco: "40,00", img: "capas/Personalizada .jpeg" },
+            { nome: "Silicone Case Apple", cat: "capas", subtipo: "silicone", preco: "20,00", img: "capas/Case silicone.jpeg" },
+            { nome: "Case Space Premium", cat: "capas", subtipo: "premium", preco: "20,00", img: "capas/Space .jpeg" },
+            { nome: "Case MagSafe Transparente", cat: "capas", subtipo: "magsafe", preco: "25,00", img: "capas/Case MagSafe.jpeg" },
+            { nome: "Case BAL Luxo", cat: "capas", subtipo: "premium", preco: "25,00", img: "capas/Case bal.jpeg" },
+            { nome: "Case Silicone MagSafe", cat: "capas", subtipo: "magsafe", preco: "40,00", img: "capas/Case silicone case MagSafe.jpeg" },
+            { nome: "Case de Couro Apple", cat: "capas", subtipo: "couro", preco: "40,00", img: "capas/capacouro.jpeg" },
+            { nome: "Case XJC Anti-Impacto", cat: "capas", subtipo: "impacto", preco: "30,00", img: "capas/Case xjc.jpeg" },
+            
+            // IPHONES
+            { nome: "iPhone (Consultar Modelos)", cat: "iphones", subtipo: "", preco: "Consulte", img: "iphones/Iphone.jpeg" },
+
+            // ENERGIA
+            { nome: "Cabo Linha Premium", cat: "carregador", subtipo: "cabo", preco: "35,00", img: "carregador/cabos/Cabo  qualidade premium.jpeg" },
+            { nome: "Cabo Qualidade Original", cat: "carregador", subtipo: "cabo", preco: "45,00", img: "carregador/cabos/Qualidade original Lightning.jpeg" },
+            { nome: "Fonte Linha Premium", cat: "carregador", subtipo: "fonte", preco: "55,00", img: "carregador/fonte qualidade premium.jpeg" },
+            { nome: "Fonte Qualidade Original", cat: "carregador", subtipo: "fonte", preco: "75,00", img: "carregador/Fonte qualidade original.jpeg" },
+
+            // PELÍCULAS
+            { nome: "Película 3D de Vidro", cat: "pelicula", subtipo: "", preco: "15,00", img: "pelicula/peliculaceramic.jpeg" },
+            { nome: "Película de Privacidade", cat: "pelicula", subtipo: "", preco: "20,00", img: "pelicula/peliculaprivacidade.jpeg" },
+            { nome: "Película de Cerâmica", cat: "pelicula", subtipo: "", preco: "25,00", img: "pelicula/peliculaceramic.jpeg" },
+
+            // FONES (ÁUDIO)
+            { nome: "AirPods Pro 2", cat: "fones", subtipo: "", preco: "80,00", img: "fones/Air pods pro 2.jpeg" },
+            { nome: "AirPods 4", cat: "fones", subtipo: "", preco: "80,00", img: "fones/Airpods 4.jpeg" },
+            { nome: "Fone Bluetooth Premium", cat: "fones", subtipo: "", preco: "60,00", img: "fones/fones.jpeg" },
+
+            // RELÓGIOS
+            { nome: "Aurafit Watch 10c", cat: "relogio", subtipo: "", preco: "199,99", img: "relogio/Relogio aurafit Watch 10c2.jpeg" },
+            { nome: "Smart Watch Ultra", cat: "relogio", subtipo: "", preco: "220,00", img: "relogio/Smart Watch ultra.jpeg" },
+            { nome: "Bazil Watch", cat: "relogio", subtipo: "", preco: "210,00", img: "relogio/Bazil.jpeg" },
+            { nome: "Pulseiras Variadas", cat: "relogio", subtipo: "", preco: "30,00", img: "relogio/pulseiras.jpeg" }
+        ];
+
+        function carregarVitrine() {
+            const vitrine = document.getElementById('vitrine');
+            const busca = document.getElementById('campo-busca').value.toLowerCase();
+            const subSel = document.getElementById('select-subtipo').value;
+            vitrine.innerHTML = "";
+            
+            let lista = categoriaAtiva === 'todas' ? produtos : produtos.filter(p => p.cat === categoriaAtiva);
+            
+            if (subSel) lista = lista.filter(p => p.subtipo === subSel);
+            if (busca) lista = lista.filter(p => p.nome.toLowerCase().includes(busca));
+
+            lista.forEach(p => {
+                vitrine.innerHTML += `
+                    <div class="card">
+                        <div class="img-container"><img src="${p.img}" onerror="this.src='https://via.placeholder.com/300?text=JN+CELL'"></div>
+                        <h3 style="font-size: 15px; min-height: 40px; margin-bottom: 10px;">${p.nome}</h3>
+                        <p class="preco">${p.preco === 'Consulte' ? 'R$ Consulte' : 'R$ ' + p.preco}</p>
+                        <a href="https://wa.me/5599984660688?text=Olá! Interesse no: ${p.nome}" target="_blank" class="btn-pedido">Pedir agora</a>
+                    </div>`;
+            });
+        }
+
+        function filtrar(categoria, event) {
+            categoriaAtiva = categoria;
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const wrapper = document.getElementById('sub-filtros-wrapper');
+            const select = document.getElementById('select-subtipo');
+
+            if (categoria === 'capas') {
+                wrapper.style.display = "block";
+                select.innerHTML = `<option value="">Todas as Capas</option><option value="silicone">Silicone</option><option value="magsafe">MagSafe</option><option value="couro">Couro</option><option value="premium">Premium/BAL</option>`;
+            } else if (categoria === 'carregador') {
+                wrapper.style.display = "block";
+                select.innerHTML = `<option value="">Tudo de Energia</option><option value="cabo">Apenas Cabos</option><option value="fonte">Apenas Fontes</option>`;
+            } else {
+                wrapper.style.display = "none";
+                select.innerHTML = "";
+            }
+            carregarVitrine();
+        }
+
+        carregarVitrine();
+    </script>
+</body>
+</html>
