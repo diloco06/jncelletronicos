@@ -16,7 +16,7 @@
             --select-bg: #1a1a1a;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: hidden; }
+        body { background-color: var(--bg-dark); color: var(--text-white); overflow-x: hidden; padding-bottom: 100px; }
         
         header { text-align: center; padding: 40px 20px; background: linear-gradient(to bottom, #1a1a1a, #000); border-bottom: 1px solid #333; }
         .logo-container i { font-size: 2.5rem; color: var(--text-white); margin-bottom: 10px; }
@@ -34,43 +34,31 @@
         .select-filtro { background: var(--select-bg); color: white; border: 1px solid var(--primary-color); padding: 10px; border-radius: 8px; width: 100%; max-width: 300px; outline: none; }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .grid-produtos { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; justify-content: center; }
         
-        .grid-produtos { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
-            gap: 25px; 
-            justify-content: center; 
-        }
-        
-        .card { 
-            background: var(--card-bg); 
-            border-radius: 15px; 
-            padding: 15px; 
-            text-align: center; 
-            border: 1px solid #222; 
-            transition: 0.3s; 
-            max-width: 320px; 
-            margin: 0 auto; 
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+        .card { background: var(--card-bg); border-radius: 15px; padding: 15px; text-align: center; border: 1px solid #222; transition: 0.3s; width: 100%; display: flex; flex-direction: column; justify-content: space-between; }
         .card:hover { transform: translateY(-10px); border-color: var(--primary-color); }
-        
         .img-container { width: 100%; height: 250px; overflow: hidden; border-radius: 10px; margin-bottom: 15px; background: #000; }
         .card img { width: 100%; height: 100%; object-fit: contain; }
-        
         .preco { font-size: 20px; color: var(--price-color); font-weight: 800; margin-bottom: 15px; }
-        .btn-pedido { background-color: #25d366; color: white; padding: 12px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: bold; text-decoration: none; }
-        
-        .whatsapp-fixo { position: fixed; bottom: 20px; right: 20px; background: #25d366; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: white; z-index: 200; }
-        
-        @media (max-width: 600px) { 
-            .grid-produtos { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; } 
-            .img-container { height: 160px; } 
-            .card h3 { font-size: 13px; } 
-        }
+        .btn-pedido { background-color: #25d366; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
+
+        /* ESTILO DO CARRINHO (DA IMAGEM) */
+        .carrinho-checkout { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 420px; background-color: #1a1a1a; border: 2px solid var(--primary-color); border-radius: 30px; padding: 12px 25px; display: none; align-items: center; justify-content: space-between; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.8); cursor: pointer; }
+        .carrinho-icon-wrapper { position: relative; display: flex; align-items: center; }
+        .carrinho-icon-wrapper i.fa-shopping-cart { font-size: 32px; color: #2ecc71; filter: drop-shadow(0 0 5px #2ecc71); }
+        .apple-inner { position: absolute; left: 9px; top: 6px; font-size: 13px; color: #2ecc71; }
+        .contador-checkout { background-color: #2ecc71; color: #000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        /* MODAL DA LISTA DE ITENS */
+        #modal-carrinho { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: #121212; border: 1px solid var(--primary-color); width: 100%; max-width: 500px; border-radius: 20px; padding: 25px; position: relative; }
+        .fechar-modal { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: #666; }
+        .lista-itens { max-height: 300px; overflow-y: auto; margin: 20px 0; border-top: 1px solid #333; }
+        .item-carrinho { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #222; }
+        .btn-remover { color: #ff4757; background: none; border: none; cursor: pointer; margin-right: 10px; font-size: 16px; }
+
+        @media (max-width: 600px) { .grid-produtos { grid-template-columns: repeat(2, 1fr); gap: 10px; } .img-container { height: 160px; } }
     </style>
 </head>
 <body>
@@ -96,54 +84,65 @@
     </nav>
 
     <div id="sub-filtros-wrapper">
-        <select id="select-subtipo" class="select-filtro" onchange="carregarVitrine()">
-            </select>
+        <select id="select-subtipo" class="select-filtro" onchange="carregarVitrine()"></select>
     </div>
 
     <div class="container">
         <div class="grid-produtos" id="vitrine"></div>
     </div>
 
-    <a href="https://wa.me/5599984660688" class="whatsapp-fixo" target="_blank"><i class="fab fa-whatsapp"></i></a>
+    <div id="btn-carrinho" class="carrinho-checkout" onclick="abrirCarrinho()">
+        <div class="carrinho-icon-wrapper">
+            <i class="fas fa-shopping-cart"></i>
+            <i class="fab fa-apple apple-inner"></i>
+        </div>
+        <span style="font-weight: 800; font-size: 14px; color: #fff;">VER MEU PEDIDO</span>
+        <div class="contador-checkout" id="cont-itens">0</div>
+    </div>
+
+    <div id="modal-carrinho">
+        <div class="modal-content">
+            <span class="fechar-modal" onclick="fecharCarrinho()">&times;</span>
+            <h2 style="color: var(--primary-color); margin-bottom: 10px;">Meu Pedido</h2>
+            <div id="lista-itens" class="lista-itens"></div>
+            <div style="display: flex; justify-content: space-between; padding: 15px 0; font-weight: bold; font-size: 18px;">
+                <span>Total:</span>
+                <span id="total-modal" style="color: var(--price-color);">R$ 0,00</span>
+            </div>
+            <button onclick="enviarWhatsApp()" style="background: #25d366; color:white; width: 100%; padding: 15px; border-radius: 10px; border:none; font-weight: bold; cursor:pointer;">
+                <i class="fab fa-whatsapp"></i> CONCLUIR NO WHATSAPP
+            </button>
+        </div>
+    </div>
 
     <script>
+        let carrinho = [];
         let categoriaAtiva = 'todas';
 
         const produtos = [
-            // CAPAS
-            { nome: "Case Personalizada", cat: "capas", subtipo: "especial", preco: "40,00", img: "capas/Personalizada .jpeg" },
-            { nome: "Silicone Case Apple", cat: "capas", subtipo: "silicone", preco: "20,00", img: "capas/Case silicone.jpeg" },
-            { nome: "Case Space Premium", cat: "capas", subtipo: "premium", preco: "20,00", img: "capas/Space .jpeg" },
-            { nome: "Case MagSafe Transparente", cat: "capas", subtipo: "magsafe", preco: "25,00", img: "capas/Case MagSafe.jpeg" },
-            { nome: "Case BAL Luxo", cat: "capas", subtipo: "premium", preco: "25,00", img: "capas/Case bal.jpeg" },
-            { nome: "Case Silicone MagSafe", cat: "capas", subtipo: "magsafe", preco: "40,00", img: "capas/Case silicone case MagSafe.jpeg" },
-            { nome: "Case de Couro Apple", cat: "capas", subtipo: "couro", preco: "40,00", img: "capas/capacouro.jpeg" },
-            { nome: "Case XJC Anti-Impacto", cat: "capas", subtipo: "impacto", preco: "30,00", img: "capas/Case xjc.jpeg" },
-            
-            // IPHONES
-            { nome: "iPhone (Consultar Modelos)", cat: "iphones", subtipo: "", preco: "Consulte", img: "iphones/Iphone.jpeg" },
-
-            // ENERGIA
-            { nome: "Cabo Linha Premium", cat: "carregador", subtipo: "cabo", preco: "35,00", img: "carregador/cabos/Cabo  qualidade premium.jpeg" },
-            { nome: "Cabo Qualidade Original", cat: "carregador", subtipo: "cabo", preco: "45,00", img: "carregador/cabos/Qualidade original Lightning.jpeg" },
-            { nome: "Fonte Linha Premium", cat: "carregador", subtipo: "fonte", preco: "55,00", img: "carregador/fonte qualidade premium.jpeg" },
-            { nome: "Fonte Qualidade Original", cat: "carregador", subtipo: "fonte", preco: "75,00", img: "carregador/Fonte qualidade original.jpeg" },
-
-            // PELÍCULAS
-            { nome: "Película 3D de Vidro", cat: "pelicula", subtipo: "", preco: "15,00", img: "pelicula/peliculaceramic.jpeg" },
-            { nome: "Película de Privacidade", cat: "pelicula", subtipo: "", preco: "20,00", img: "pelicula/peliculaprivacidade.jpeg" },
-            { nome: "Película de Cerâmica", cat: "pelicula", subtipo: "", preco: "25,00", img: "pelicula/peliculaceramic.jpeg" },
-
-            // FONES (ÁUDIO)
-            { nome: "AirPods Pro 2", cat: "fones", subtipo: "", preco: "80,00", img: "fones/Air pods pro 2.jpeg" },
-            { nome: "AirPods 4", cat: "fones", subtipo: "", preco: "80,00", img: "fones/Airpods 4.jpeg" },
-            { nome: "Fone Bluetooth Premium", cat: "fones", subtipo: "", preco: "60,00", img: "fones/fones.jpeg" },
-
-            // RELÓGIOS
-            { nome: "Aurafit Watch 10c", cat: "relogio", subtipo: "", preco: "199,99", img: "relogio/Relogio aurafit Watch 10c2.jpeg" },
-            { nome: "Smart Watch Ultra", cat: "relogio", subtipo: "", preco: "220,00", img: "relogio/Smart Watch ultra.jpeg" },
-            { nome: "Bazil Watch", cat: "relogio", subtipo: "", preco: "210,00", img: "relogio/Bazil.jpeg" },
-            { nome: "Pulseiras Variadas", cat: "relogio", subtipo: "", preco: "30,00", img: "relogio/pulseiras.jpeg" }
+            { id: 1, nome: "Case Personalizada", cat: "capas", subtipo: "especial", preco: "40,00", img: "capas/Personalizada .jpeg" },
+            { id: 2, nome: "Silicone Case Apple", cat: "capas", subtipo: "silicone", preco: "20,00", img: "capas/Case silicone.jpeg" },
+            { id: 3, nome: "Case Space Premium", cat: "capas", subtipo: "premium", preco: "20,00", img: "capas/Space .jpeg" },
+            { id: 4, nome: "Case MagSafe Transparente", cat: "capas", subtipo: "magsafe", preco: "25,00", img: "capas/Case MagSafe.jpeg" },
+            { id: 5, nome: "Case BAL Luxo", cat: "capas", subtipo: "premium", preco: "25,00", img: "capas/Case bal.jpeg" },
+            { id: 6, nome: "Case Silicone MagSafe", cat: "capas", subtipo: "magsafe", preco: "40,00", img: "capas/Case silicone case MagSafe.jpeg" },
+            { id: 7, nome: "Case de Couro Apple", cat: "capas", subtipo: "couro", preco: "40,00", img: "capas/capacouro.jpeg" },
+            { id: 8, nome: "Case XJC Anti-Impacto", cat: "capas", subtipo: "impacto", preco: "30,00", img: "capas/Case xjc.jpeg" },
+            { id: 9, nome: "iPhone (Consultar Modelos)", cat: "iphones", subtipo: "", preco: "Consulte", img: "iphones/Iphone.jpeg" },
+            { id: 10, nome: "Cabo Linha Premium", cat: "carregador", subtipo: "cabo", preco: "35,00", img: "carregador/cabos/Cabo  qualidade premium.jpeg" },
+            { id: 11, nome: "Cabo Qualidade Original", cat: "carregador", subtipo: "cabo", preco: "45,00", img: "carregador/cabos/Qualidade original Lightning.jpeg" },
+            { id: 12, nome: "Fonte Linha Premium", cat: "carregador", subtipo: "fonte", preco: "55,00", img: "carregador/fonte qualidade premium.jpeg" },
+            { id: 13, nome: "Fonte Qualidade Original", cat: "carregador", subtipo: "fonte", preco: "75,00", img: "carregador/Fonte qualidade original.jpeg" },
+            { id: 14, nome: "Película 3D de Vidro", cat: "pelicula", subtipo: "", preco: "15,00", img: "pelicula/peliculaceramic.jpeg" },
+            { id: 15, nome: "Película de Privacidade", cat: "pelicula", subtipo: "", preco: "20,00", img: "pelicula/peliculaprivacidade.jpeg" },
+            { id: 16, nome: "Película de Cerâmica", cat: "pelicula", subtipo: "", preco: "25,00", img: "pelicula/peliculaceramic.jpeg" },
+            { id: 17, nome: "AirPods Pro 2", cat: "fones", subtipo: "", preco: "80,00", img: "fones/Air pods pro 2.jpeg" },
+            { id: 18, nome: "AirPods 4", cat: "fones", subtipo: "", preco: "80,00", img: "fones/Airpods 4.jpeg" },
+            { id: 19, nome: "Fone Bluetooth Premium", cat: "fones", subtipo: "", preco: "60,00", img: "fones/fones.jpeg" },
+            { id: 20, nome: "Aurafit Watch 10c", cat: "relogio", subtipo: "", preco: "199,99", img: "relogio/Relogio aurafit Watch 10c2.jpeg" },
+            { id: 21, nome: "Smart Watch Ultra", cat: "relogio", subtipo: "", preco: "220,00", img: "relogio/Smart Watch ultra.jpeg" },
+            { id: 22, nome: "Bazil Watch", cat: "relogio", subtipo: "", preco: "210,00", img: "relogio/Bazil.jpeg" },
+            { id: 23, nome: "Pulseiras Variadas", cat: "relogio", subtipo: "", preco: "30,00", img: "relogio/pulseiras.jpeg" }
         ];
 
         function carregarVitrine() {
@@ -151,9 +150,7 @@
             const busca = document.getElementById('campo-busca').value.toLowerCase();
             const subSel = document.getElementById('select-subtipo').value;
             vitrine.innerHTML = "";
-            
             let lista = categoriaAtiva === 'todas' ? produtos : produtos.filter(p => p.cat === categoriaAtiva);
-            
             if (subSel) lista = lista.filter(p => p.subtipo === subSel);
             if (busca) lista = lista.filter(p => p.nome.toLowerCase().includes(busca));
 
@@ -161,18 +158,62 @@
                 vitrine.innerHTML += `
                     <div class="card">
                         <div class="img-container"><img src="${p.img}" onerror="this.src='https://via.placeholder.com/300?text=JN+CELL'"></div>
-                        <h3 style="font-size: 15px; min-height: 40px; margin-bottom: 10px;">${p.nome}</h3>
-                        <p class="preco">${p.preco === 'Consulte' ? 'R$ Consulte' : 'R$ ' + p.preco}</p>
-                        <a href="https://wa.me/5599984660688?text=Olá! Interesse no: ${p.nome}" target="_blank" class="btn-pedido">Pedir agora</a>
+                        <h3 style="font-size: 14px; min-height: 40px;">${p.nome}</h3>
+                        <p class="preco">R$ ${p.preco}</p>
+                        <button onclick="adicionarAoCarrinho(${p.id})" class="btn-pedido">Adicionar</button>
                     </div>`;
             });
+        }
+
+        function adicionarAoCarrinho(id) {
+            const p = produtos.find(item => item.id === id);
+            carrinho.push(p);
+            document.getElementById('btn-carrinho').style.display = 'flex';
+            document.getElementById('cont-itens').innerText = carrinho.length;
+        }
+
+        function abrirCarrinho() {
+            const lista = document.getElementById('lista-itens');
+            const totalEl = document.getElementById('total-modal');
+            lista.innerHTML = "";
+            let total = 0;
+
+            carrinho.forEach((p, index) => {
+                lista.innerHTML += `
+                    <div class="item-carrinho">
+                        <div><button class="btn-remover" onclick="removerItem(${index})"><i class="fas fa-trash"></i></button> ${p.nome}</div>
+                        <span>R$ ${p.preco}</span>
+                    </div>`;
+                if(p.preco !== "Consulte") total += parseFloat(p.preco.replace('.', '').replace(',', '.'));
+            });
+
+            totalEl.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            document.getElementById('modal-carrinho').style.display = 'flex';
+        }
+
+        function removerItem(index) {
+            carrinho.splice(index, 1);
+            if (carrinho.length === 0) {
+                fecharCarrinho();
+                document.getElementById('btn-carrinho').style.display = 'none';
+            } else {
+                document.getElementById('cont-itens').innerText = carrinho.length;
+                abrirCarrinho();
+            }
+        }
+
+        function fecharCarrinho() { document.getElementById('modal-carrinho').style.display = 'none'; }
+
+        function enviarWhatsApp() {
+            let msg = "🚀 *Novo Pedido - JN CELL*\n\n";
+            carrinho.forEach((p, i) => msg += `${i+1}. *${p.nome}* - R$ ${p.preco}\n`);
+            window.open(`https://wa.me/5599984660688?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         function filtrar(categoria, event) {
             categoriaAtiva = categoria;
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
-            
             const wrapper = document.getElementById('sub-filtros-wrapper');
             const select = document.getElementById('select-subtipo');
 
